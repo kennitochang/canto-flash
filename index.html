@@ -58,7 +58,7 @@ hr{border:0;border-top:1px solid var(--line);margin:14px 0}
   <div class="row" style="margin-top:8px"><span>Cards per session:</span>
     <input type="number" id="sess" min="0" value="20" inputmode="numeric"> <span class="mute">(0 = all matching)</span></div>
   <div class="row" style="margin-top:8px"><span>Prompt:</span>
-    <select id="pcol"><option value="ij">iPhone modified Jyutping</option><option value="mj">Modified Jyutping</option><option value="jp">Standard Jyutping</option></select></div>
+    <select id="pcol"><option value="mj">Modified Jyutping</option><option value="ij">iPhone modified Jyutping</option><option value="jp">Standard Jyutping</option></select></div>
   <hr>
   <label><input type="checkbox" id="oParen" checked> English: ignore parenthesized text</label>
   <label><input type="checkbox" id="oAny" checked> English: any one semicolon-separated definition is enough</label>
@@ -191,7 +191,8 @@ function resumeSession(){
 function show(id){['setup','quiz','summary'].forEach(s=>$(s).classList.toggle('hidden',s!==id));window.scrollTo(0,0);}
 
 // ---------------------------------------------------------------- quiz flow
-function promptText(c){const k=(opts&&opts.pcol)||'ij';return c[k]||c.ij||c.mj||c.jp||'(no Jyutping)';}
+// the prompt always follows the current Settings choice, including for resumed or imported sessions
+function promptText(c){const k=$('pcol').value||'mj';return c[k]||c.mj||c.ij||c.jp||'(no Jyutping)';}
 function startSession(){
   opts=config();saveCfg();
   let pool=shuffle(filtered());
@@ -307,6 +308,7 @@ $('quit').onclick=()=>{show('setup');updateCount();};
 $('sumNext').onclick=sumNext;$('sumBack').onclick=()=>{show('setup');updateCount();};
 ['minc','maxc','sess'].forEach(i=>$(i).addEventListener('input',updateCount));
 $('oSkip').addEventListener('change',updateCount);
+$('pcol').addEventListener('change',saveCfg);
 document.querySelectorAll('input[name=lit]').forEach(e=>e.addEventListener('change',updateCount));
 document.addEventListener('keydown',e=>{
   if(e.isComposing||e.keyCode===229)return;           // don't submit while an IME is composing Chinese
